@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_asset_return_wizard_form" model="ir.ui.view">
+        <field name="name">asset.return.wizard.form</field>
+        <field name="model">asset.return.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Return Asset">
+                <group>
+                    <group>
+                        <field name="asset_id" readonly="1"/>
+                        <field name="returned_date"/>
+                        <field name="returned_to_id"/>
+                    </group>
+                    <group>
+                        <field name="condition_in"/>
+                        <field name="next_state"/>
+                    </group>
+                </group>
+                <group string="Inspection &amp; Return Notes">
+                    <field name="notes" nolabel="1" placeholder="Return condition check, wear and tear, missing parts, or reasons for maintenance..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_return" string="Confirm Return" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

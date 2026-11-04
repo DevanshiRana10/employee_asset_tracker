@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_employee_asset_maintenance_list" model="ir.ui.view">
+        <field name="name">employee.asset.maintenance.list</field>
+        <field name="model">employee.asset.maintenance</field>
+        <field name="arch" type="xml">
+            <list string="Maintenance Activities" decoration-info="state == 'draft'" decoration-primary="state == 'scheduled'" decoration-warning="state == 'in_progress'" decoration-success="state == 'completed'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="asset_id"/>
+                <field name="maintenance_type"/>
+                <field name="reported_date"/>
+                <field name="scheduled_date" optional="show"/>
+                <field name="start_date" optional="hide"/>
+                <field name="completion_date" optional="show"/>
+                <field name="technician_id"/>
+                <field name="vendor_id" optional="hide"/>
+                <field name="cost" widget="monetary"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_employee_asset_maintenance_form" model="ir.ui.view">
+        <field name="name">employee.asset.maintenance.form</field>
+        <field name="model">employee.asset.maintenance</field>
+        <field name="arch" type="xml">
+            <form string="Asset Maintenance">
+                <header>
+                    <button name="action_schedule" string="Schedule" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_start" string="Start Work" type="object" class="oe_highlight" invisible="state not in ('draft', 'scheduled')"/>
+                    <button name="action_complete" string="Mark Completed" type="object" class="btn-success" invisible="state != 'in_progress'"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state in ('completed', 'cancelled')" confirm="Cancel this maintenance task?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,in_progress,completed,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Maintenance Subject"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Battery Replacement, Screen Repair, OS Upgrade"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="maintenance_details" string="Task Details">
+                            <field name="asset_id" readonly="state in ('completed', 'cancelled')"/>
+                            <field name="maintenance_type" readonly="state in ('completed', 'cancelled')"/>
+                            <field name="reported_date" readonly="state in ('completed', 'cancelled')"/>
+                            <field name="scheduled_date" readonly="state in ('completed', 'cancelled')"/>
+                            <field name="start_date" readonly="state in ('completed', 'cancelled')"/>
+                            <field name="completion_date" readonly="state in ('completed', 'cancelled')"/>
+                        </group>
+                        <group name="timing_cost" string="Assignment &amp; Cost">
+                            <field name="technician_id" readonly="state in ('completed', 'cancelled')"/>
+                            <field name="vendor_id" readonly="state in ('completed', 'cancelled')"/>
+                            <field name="cost" widget="monetary" readonly="state in ('completed', 'cancelled')"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Work Description" name="description">
+                            <field name="description" placeholder="Describe issue reported, diagnostics, and required repairs..." readonly="state in ('completed', 'cancelled')"/>
+                        </page>
+                        <page string="Resolution Notes" name="resolution">
+                            <field name="resolution_notes" placeholder="Invoice details, parts replaced, warranty notes, or engineer remarks..." readonly="state in ('completed', 'cancelled')"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_employee_asset_maintenance_search" model="ir.ui.view">
+        <field name="name">employee.asset.maintenance.search</field>
+        <field name="model">employee.asset.maintenance</field>
+        <field name="arch" type="xml">
+            <search string="Search Maintenance">
+                <field name="name"/>
+                <field name="asset_id"/>
+                <field name="technician_id"/>
+                <field name="vendor_id"/>
+                <separator/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_scheduled" string="Scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter name="filter_in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="filter_completed" string="Completed" domain="[('state', '=', 'completed')]"/>
+                <separator/>
+                <filter name="filter_preventive" string="Preventive" domain="[('maintenance_type', '=', 'preventive')]"/>
+                <filter name="filter_corrective" string="Corrective / Repair" domain="[('maintenance_type', '=', 'corrective')]"/>
+                <group>
+                    <filter name="group_by_asset" string="Asset" context="{'group_by': 'asset_id'}"/>
+                    <filter name="group_by_type" string="Type" context="{'group_by': 'maintenance_type'}"/>
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_technician" string="Technician" context="{'group_by': 'technician_id'}"/>
+                    <filter name="group_by_vendor" string="Vendor" context="{'group_by': 'vendor_id'}"/>
+                    <filter name="group_by_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_employee_asset_maintenance" model="ir.actions.act_window">
+        <field name="name">Maintenance</field>
+        <field name="res_model">employee.asset.maintenance</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_employee_asset_maintenance_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Log a maintenance or repair task
+            </p>
+            <p>
+                Track repair costs, service providers, preventive schedules, and parts replacement.
+            </p>
+        </field>
+    </record>
+</odoo>

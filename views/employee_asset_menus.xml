@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu: Visible to Employee, Officer, and Administrator -->
+    <menuitem
+        id="menu_employee_asset_root"
+        name="Asset Tracker"
+        web_icon="employee_asset_tracker,static/description/icon.png"
+        groups="group_employee_asset_emp"
+        sequence="75"/>
+
+    <!-- Client Action for Executive Dashboard -->
+    <record id="action_employee_asset_dashboard" model="ir.actions.client">
+        <field name="name">Dashboard</field>
+        <field name="tag">employee_asset_dashboard</field>
+    </record>
+
+    <!-- Dashboard Menu: Officer and Administrator only -->
+    <menuitem
+        id="menu_employee_asset_dashboard"
+        name="Dashboard"
+        parent="menu_employee_asset_root"
+        action="action_employee_asset_dashboard"
+        groups="group_employee_asset_user"
+        sequence="5"/>
+
+    <!-- Assets Menu: Accessible by all; filtered by Record Rules (Own equipment for Employee, All for Officer/Admin) -->
+    <menuitem
+        id="menu_employee_asset"
+        name="Assets"
+        parent="menu_employee_asset_root"
+        action="action_employee_asset"
+        groups="group_employee_asset_emp"
+        sequence="10"/>
+
+    <!-- Scan Asset Tag Menu: Officer and Administrator only -->
+    <menuitem
+        id="menu_asset_scan_wizard"
+        name="Scan Asset Tag"
+        parent="menu_employee_asset_root"
+        action="action_asset_scan_wizard"
+        groups="group_employee_asset_user"
+        sequence="15"/>
+
+    <!-- Assignment History Menu: Officer and Administrator only -->
+    <menuitem
+        id="menu_employee_asset_assignment"
+        name="Assignment History"
+        parent="menu_employee_asset_root"
+        action="action_employee_asset_assignment"
+        groups="group_employee_asset_user"
+        sequence="20"/>
+
+    <!-- Maintenance Menu: Accessible by all (Employees can report issues on their devices) -->
+    <menuitem
+        id="menu_employee_asset_maintenance"
+        name="Maintenance"
+        parent="menu_employee_asset_root"
+        action="action_employee_asset_maintenance"
+        groups="group_employee_asset_emp"
+        sequence="30"/>
+
+    <!-- Configuration Menu: Administrator only -->
+    <menuitem
+        id="menu_employee_asset_config"
+        name="Configuration"
+        parent="menu_employee_asset_root"
+        groups="group_employee_asset_manager"
+        sequence="90"/>
+
+    <!-- Asset Categories Menu: Administrator only -->
+    <menuitem
+        id="menu_employee_asset_category"
+        name="Asset Categories"
+        parent="menu_employee_asset_config"
+        action="action_employee_asset_category"
+        sequence="10"/>
+</odoo>

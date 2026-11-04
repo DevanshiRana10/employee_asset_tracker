@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Daily Check for Overdue Asset Returns -->
+    <record id="ir_cron_check_overdue_asset_assignments" model="ir.cron">
+        <field name="name">Asset Tracker: Check Overdue Returns</field>
+        <field name="model_id" ref="model_employee_asset_assignment"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_check_overdue_assignments()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Daily Check for Expiring Warranties -->
+    <record id="ir_cron_check_warranty_expiry" model="ir.cron">
+        <field name="name">Asset Tracker: Check Warranty Expiry (30 Days)</field>
+        <field name="model_id" ref="model_employee_asset"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_check_warranty_expiry()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

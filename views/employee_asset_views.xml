@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_employee_asset_list" model="ir.ui.view">
+        <field name="name">employee.asset.list</field>
+        <field name="model">employee.asset</field>
+        <field name="arch" type="xml">
+            <list string="Assets" decoration-info="state == 'draft'" decoration-success="state == 'available'" decoration-warning="state == 'assigned'" decoration-danger="state in ('maintenance', 'lost')" decoration-muted="state == 'retired'">
+                <field name="asset_code"/>
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="serial_number" optional="show"/>
+                <field name="barcode" optional="show"/>
+                <field name="employee_id"/>
+                <field name="department_id" optional="show"/>
+                <field name="purchase_date" optional="hide"/>
+                <field name="warranty_status" widget="badge" optional="show"
+                       decoration-success="warranty_status == 'valid'"
+                       decoration-warning="warranty_status == 'expiring'"
+                       decoration-danger="warranty_status == 'expired'"/>
+                <field name="condition" widget="badge"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_employee_asset_form" model="ir.ui.view">
+        <field name="name">employee.asset.form</field>
+        <field name="model">employee.asset</field>
+        <field name="arch" type="xml">
+            <form string="Employee Asset">
+                <header>
+                    <button name="action_print_barcode_label" string="Print Tag / Barcode" type="object" class="btn-secondary" icon="fa-barcode"/>
+                    <button name="action_set_to_available" string="Mark Available" type="object" class="oe_highlight" invisible="state not in ('draft', 'maintenance', 'retired', 'lost')"/>
+                    <button name="action_open_assign_wizard" string="Assign Asset" type="object" class="oe_highlight" invisible="state != 'available'"/>
+                    <button name="action_open_return_wizard" string="Return Asset" type="object" class="btn-warning" invisible="state != 'assigned'"/>
+                    <button name="action_send_to_maintenance" string="Put in Maintenance" type="object" invisible="state not in ('available', 'draft')"/>
+                    <button name="action_retire_asset" string="Retire Asset" type="object" invisible="state in ('retired', 'assigned')" confirm="Are you sure you want to retire this asset from service?"/>
+                    <button name="action_mark_lost" string="Mark as Lost" type="object" invisible="state in ('lost', 'retired')" confirm="Are you sure you want to mark this asset as lost?"/>
+                    <button name="action_reset_to_draft" string="Reset to Draft" type="object" invisible="state not in ('available', 'retired', 'lost')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,available,assigned,maintenance,retired"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bundled_assets" type="object" class="oe_stat_button" icon="fa-cubes" invisible="child_count == 0">
+                            <field name="child_count" widget="statinfo" string="Bundled Assets"/>
+                        </button>
+                        <button name="action_view_accessories" type="object" class="oe_stat_button" icon="fa-plug" invisible="accessory_count == 0">
+                            <field name="accessory_count" widget="statinfo" string="Accessories"/>
+                        </button>
+                        <button name="action_view_assignments" type="object" class="oe_stat_button" icon="fa-history">
+                            <field name="assignment_count" widget="statinfo" string="Assignments"/>
+                        </button>
+                        <button name="action_view_maintenances" type="object" class="oe_stat_button" icon="fa-wrench">
+                            <field name="maintenance_count" widget="statinfo" string="Maintenance"/>
+                        </button>
+                    </div>
+                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_1920'}"/>
+                    <div class="oe_title">
+                        <label for="name" string="Asset Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. MacBook Pro 16-inch M3"/>
+                        </h1>
+                        <h2>
+                            <field name="asset_code" placeholder="Asset Code e.g. AST-2026-001"/>
+                        </h2>
+                    </div>
+                    <notebook>
+                        <page string="General Information" name="general_info">
+                            <group>
+                                <group string="Classification &amp; Identification">
+                                    <field name="category_id"/>
+                                    <field name="barcode" placeholder="e.g. AST-0001 or scan code"/>
+                                    <field name="serial_number" placeholder="e.g. C02G1234MD6R"/>
+                                    <field name="parent_id" placeholder="Select parent bundle asset if applicable..."/>
+                                    <field name="condition"/>
+                                    <field name="active" invisible="1"/>
+                                </group>
+                                <group string="Physical Details">
+                                    <field name="location" placeholder="e.g. Building A, Floor 3, Desk 12"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </group>
+                            </group>
+                            <group string="Detailed Description">
+                                <field name="description" nolabel="1" placeholder="Technical specifications, components, accessories..."/>
+                            </group>
+                        </page>
+
+                        <page string="Bundled Sub-Assets" name="bundled_sub_assets">
+                            <div class="mb-2">
+                                <button name="action_open_bundle_wizard"
+                                        string="Attach Existing Assets"
+                                        type="object"
+                                        icon="fa-plus-circle"
+                                        class="btn-primary"
+                                        invisible="state in ('retired', 'lost')"/>
+                            </div>
+                            <field name="child_ids">
+                                <list string="Bundled Sub-Assets" create="0">
+                                    <field name="asset_code"/>
+                                    <field name="name"/>
+                                    <field name="category_id"/>
+                                    <field name="serial_number" optional="show"/>
+                                    <field name="barcode" optional="show"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="condition" widget="badge"/>
+                                    <button name="action_remove_from_bundle"
+                                            string="Remove from Bundle"
+                                            type="object"
+                                            icon="fa-chain-broken"
+                                            class="btn-link text-danger"
+                                            confirm="Remove this asset from the bundle?"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Accessories &amp; Peripherals" name="accessories_peripherals">
+                            <field name="accessory_ids">
+                                <list string="Accessories" editable="bottom">
+                                    <field name="name" placeholder="e.g. 96W USB-C Charger"/>
+                                    <field name="accessory_type"/>
+                                    <field name="serial_number" optional="show"/>
+                                    <field name="condition" widget="badge"/>
+                                    <field name="notes" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Assignment Details" name="assignment_info">
+                            <group>
+                                <group string="Current Assignment">
+                                    <field name="employee_id"/>
+                                    <field name="department_id"/>
+                                    <div colspan="2" class="mt-2">
+                                        <button name="action_open_assign_wizard" string="Assign to Employee" type="object" class="btn btn-primary" invisible="state != 'available'"/>
+                                        <button name="action_open_return_wizard" string="Return Asset" type="object" class="btn btn-warning" invisible="state != 'assigned'"/>
+                                    </div>
+                                </group>
+                                <group string="Organization">
+                                    <field name="company_id" groups="base.group_multi_company"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Purchase &amp; Financial" name="purchase_info">
+                            <group>
+                                <group string="Vendor &amp; Invoice">
+                                    <field name="vendor_id"/>
+                                    <field name="purchase_reference" placeholder="e.g. INV/2026/0042"/>
+                                </group>
+                                <group string="Cost &amp; Warranty">
+                                    <field name="purchase_date"/>
+                                    <field name="purchase_price" widget="monetary"/>
+                                    <field name="warranty_end_date"/>
+                                    <field name="warranty_status" widget="badge"
+                                           decoration-success="warranty_status == 'valid'"
+                                           decoration-warning="warranty_status == 'expiring'"
+                                           decoration-danger="warranty_status == 'expired'"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Assignment History" name="assignment_history">
+                            <field name="assignment_ids" readonly="1">
+                                <list string="Assignment History" decoration-success="state == 'assigned'" decoration-muted="state == 'returned'" decoration-danger="state == 'cancelled'">
+                                    <field name="assigned_date"/>
+                                    <field name="employee_id"/>
+                                    <field name="department_id" optional="show"/>
+                                    <field name="expected_return_date" optional="show"/>
+                                    <field name="returned_date"/>
+                                    <field name="condition_out" optional="hide"/>
+                                    <field name="condition_in" optional="show"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Maintenance" name="maintenance_history">
+                            <field name="maintenance_ids" context="{'default_asset_id': id, 'default_company_id': company_id}">
+                                <list string="Maintenance Records" decoration-info="state == 'draft'" decoration-primary="state == 'scheduled'" decoration-warning="state == 'in_progress'" decoration-success="state == 'completed'">
+                                    <field name="name"/>
+                                    <field name="maintenance_type"/>
+                                    <field name="reported_date"/>
+                                    <field name="technician_id"/>
+                                    <field name="cost" widget="monetary"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Internal Remarks" name="notes">
+                            <field name="notes" placeholder="Internal remarks, handover conditions, warranty policies..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_employee_asset_search" model="ir.ui.view">
+        <field name="name">employee.asset.search</field>
+        <field name="model">employee.asset</field>
+        <field name="arch" type="xml">
+            <search string="Search Assets">
+                <field name="name" string="Asset" filter_domain="['|', '|', '|', ('name', 'ilike', self), ('asset_code', 'ilike', self), ('serial_number', 'ilike', self), ('barcode', 'ilike', self)]"/>
+                <field name="asset_code"/>
+                <field name="serial_number"/>
+                <field name="barcode"/>
+                <field name="category_id"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="location"/>
+                <separator/>
+                <filter name="filter_available" string="Available" domain="[('state', '=', 'available')]"/>
+                <filter name="filter_assigned" string="Assigned" domain="[('state', '=', 'assigned')]"/>
+                <filter name="filter_maintenance" string="Under Maintenance" domain="[('state', '=', 'maintenance')]"/>
+                <filter name="filter_retired" string="Retired" domain="[('state', '=', 'retired')]"/>
+                <filter name="filter_lost" string="Lost" domain="[('state', '=', 'lost')]"/>
+                <separator/>
+                <filter name="filter_warranty_expiring" string="Warranty Expiring Soon" domain="[('warranty_status', '=', 'expiring')]"/>
+                <filter name="filter_warranty_expired" string="Warranty Expired" domain="[('warranty_status', '=', 'expired')]"/>
+                <filter name="filter_overdue" string="Return Overdue" domain="[('is_overdue', '=', True)]"/>
+                <filter name="filter_bundled" string="Parent Bundles" domain="[('child_ids', '!=', False)]"/>
+                <separator/>
+                <filter name="filter_damaged" string="Damaged Condition" domain="[('condition', '=', 'damaged')]"/>
+                <separator/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_by_category" string="Category" context="{'group_by': 'category_id'}"/>
+                    <filter name="group_by_employee" string="Current Employee" context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_by_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_condition" string="Condition" context="{'group_by': 'condition'}"/>
+                    <filter name="group_by_parent" string="Parent Bundle" context="{'group_by': 'parent_id'}"/>
+                    <filter name="group_by_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_employee_asset" model="ir.actions.act_window">
+        <field name="name">Assets</field>
+        <field name="res_model">employee.asset</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_employee_asset_search"/>
+        <field name="context">{'search_default_group_by_category': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a new company asset
+            </p>
+            <p>
+                Keep track of company hardware, allocations to employees, maintenance, and lifecycle.
+            </p>
+        </field>
+    </record>
+</odoo>

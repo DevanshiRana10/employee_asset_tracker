@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_asset_assign_wizard_form" model="ir.ui.view">
+        <field name="name">asset.assign.wizard.form</field>
+        <field name="model">asset.assign.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Assign Asset">
+                <group>
+                    <group>
+                        <field name="asset_id" readonly="1"/>
+                        <field name="employee_id"/>
+                    </group>
+                    <group>
+                        <field name="assigned_date"/>
+                        <field name="expected_return_date"/>
+                        <field name="condition_out"/>
+                    </group>
+                </group>
+                <group string="Handover Notes">
+                    <field name="notes" nolabel="1" placeholder="Accessories handed over, charger, packaging, initial remarks..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_assign" string="Confirm Assignment" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

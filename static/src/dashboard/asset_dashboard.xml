@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="employee_asset_tracker.EmployeeAssetDashboard">
+        <div class="eat-dashboard-container">
+            <div class="eat-dashboard-inner">
+                <!-- 1. Executive Corporate Command Header -->
+            <div class="eat-command-header">
+                <div class="eat-header-title-wrap">
+                    <h1 class="eat-header-title">
+                        <span class="eat-header-icon"><i class="fa fa-cubes" title="Dashboard"/></span>
+                        Hardware &amp; Asset Intelligence
+                        <span class="eat-company-pill" t-out="state.metrics.company_name"/>
+                        <span class="eat-live-badge"><span class="eat-pulse-dot-green"/> Live Tracking</span>
+                    </h1>
+                    <p class="eat-header-subtitle">
+                        Real-time tracking of company devices, active assignments, warranties, and maintenance workflows.
+                    </p>
+                </div>
+                <div class="eat-header-actions">
+                    <button class="btn eat-btn-secondary-corp" t-on-click="() => this.openScanWizard()">
+                        <i class="fa fa-qrcode text-primary"/> Scan Tag / QR
+                    </button>
+                    <button class="btn eat-btn-secondary-corp" t-on-click="() => this.openAssignWizard()">
+                        <i class="fa fa-user-plus text-primary"/> Assign Asset
+                    </button>
+                    <button class="btn eat-btn-primary-corp" t-on-click="() => this.openCreateAsset()">
+                        <i class="fa fa-plus-circle"/> Register Asset
+                    </button>
+                    <button class="btn eat-btn-secondary-corp eat-btn-refresh" t-att-class="{'spinning': state.isRefreshing}" t-on-click="() => this.onRefresh()" title="Refresh metrics">
+                        <i class="fa fa-refresh"/>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. Corporate KPI Metric Cards -->
+            <div class="eat-kpi-grid">
+                
+                <!-- Total Assets -->
+                <div class="eat-kpi-card kpi-total" t-on-click="() => this.openAllAssets()">
+                    <div class="eat-kpi-header">
+                        <span class="eat-kpi-label">Total Assets</span>
+                        <div class="eat-kpi-icon"><i class="fa fa-laptop" title="Total Assets"/></div>
+                    </div>
+                    <div class="eat-kpi-body">
+                        <div class="eat-kpi-value" t-out="state.metrics.total_assets"/>
+                        <span class="eat-kpi-subtext">All company equipment</span>
+                    </div>
+                    <div class="eat-kpi-footer">
+                        <span class="eat-badge-pill pill-neutral"><i class="fa fa-database"/> 100% Tracked</span>
+                        <i class="fa fa-arrow-right eat-kpi-arrow" title="View details"/>
+                    </div>
+                </div>
+
+                <!-- Available in Stock -->
+                <div class="eat-kpi-card kpi-available" t-on-click="() => this.openAvailableAssets()">
+                    <div class="eat-kpi-header">
+                        <span class="eat-kpi-label">In Stock (Available)</span>
+                        <div class="eat-kpi-icon"><i class="fa fa-check-circle" title="Available"/></div>
+                    </div>
+                    <div class="eat-kpi-body">
+                        <div class="eat-kpi-value" t-out="state.metrics.available_assets"/>
+                        <span class="eat-kpi-subtext">Ready for deployment</span>
+                    </div>
+                    <div class="eat-kpi-footer">
+                        <span class="eat-badge-pill pill-success"><i class="fa fa-cube"/> In Inventory</span>
+                        <i class="fa fa-arrow-right eat-kpi-arrow" title="View details"/>
+                    </div>
+                </div>
+
+                <!-- Assigned / Deployed -->
+                <div class="eat-kpi-card kpi-assigned" t-on-click="() => this.openAssignedAssets()">
+                    <div class="eat-kpi-header">
+                        <span class="eat-kpi-label">Actively Assigned</span>
+                        <div class="eat-kpi-icon"><i class="fa fa-user" title="Assigned"/></div>
+                    </div>
+                    <div class="eat-kpi-body">
+                        <div class="eat-kpi-value" t-out="state.metrics.assigned_assets"/>
+                        <span class="eat-kpi-subtext">Deployed to team members</span>
+                    </div>
+                    <div class="eat-kpi-footer">
+                        <span class="eat-badge-pill pill-primary">
+                            <i class="fa fa-users"/> <t t-out="state.metrics.utilization_rate"/>% Deployed
+                        </span>
+                        <i class="fa fa-arrow-right eat-kpi-arrow" title="View details"/>
+                    </div>
+                </div>
+
+                <!-- Under Maintenance -->
+                <div class="eat-kpi-card kpi-maintenance" t-on-click="() => this.openMaintenanceAssets()">
+                    <div class="eat-kpi-header">
+                        <span class="eat-kpi-label">Maintenance</span>
+                        <div class="eat-kpi-icon"><i class="fa fa-wrench" title="Maintenance"/></div>
+                    </div>
+                    <div class="eat-kpi-body">
+                        <div class="eat-kpi-value" t-out="state.metrics.maintenance_assets"/>
+                        <span class="eat-kpi-subtext">Diagnostics &amp; repairs</span>
+                    </div>
+                    <div class="eat-kpi-footer">
+                        <span class="eat-badge-pill pill-warning"><i class="fa fa-wrench"/> Service Queue</span>
+                        <i class="fa fa-arrow-right eat-kpi-arrow" title="View details"/>
+                    </div>
+                </div>
+
+                <!-- Overdue Allocations -->
+                <div class="eat-kpi-card kpi-overdue" t-on-click="() => this.openOverdueAssignments()">
+                    <div class="eat-kpi-header">
+                        <span class="eat-kpi-label">Overdue Returns</span>
+                        <div class="eat-kpi-icon"><i class="fa fa-exclamation-triangle" title="Overdue"/></div>
+                    </div>
+                    <div class="eat-kpi-body">
+                        <div class="eat-kpi-value" t-att-class="state.metrics.overdue_count > 0 ? 'text-danger' : ''" t-out="state.metrics.overdue_count"/>
+                        <span class="eat-kpi-subtext">Requires return action</span>
+                    </div>
+                    <div class="eat-kpi-footer">
+                        <t t-if="state.metrics.overdue_count > 0">
+                            <span class="eat-badge-pill pill-danger">
+                                <span class="eat-pulse-dot me-1"/> Action Required
+                            </span>
+                        </t>
+                        <t t-else="">
+                            <span class="eat-badge-pill pill-success"><i class="fa fa-check"/> No Overdue</span>
+                        </t>
+                        <i class="fa fa-arrow-right eat-kpi-arrow" title="View details"/>
+                    </div>
+                </div>
+
+                <!-- Expiring Warranties -->
+                <div class="eat-kpi-card kpi-warranty" t-on-click="() => this.openExpiringWarranties()">
+                    <div class="eat-kpi-header">
+                        <span class="eat-kpi-label">Warranty Expiry (30d)</span>
+                        <div class="eat-kpi-icon"><i class="fa fa-shield" title="Warranty Expiry"/></div>
+                    </div>
+                    <div class="eat-kpi-body">
+                        <div class="eat-kpi-value" t-out="state.metrics.warranty_expiring_count"/>
+                        <span class="eat-kpi-subtext">Ending within 1 month</span>
+                    </div>
+                    <div class="eat-kpi-footer">
+                        <span class="eat-badge-pill pill-purple"><i class="fa fa-calendar-check-o"/> 30-Day Window</span>
+                        <i class="fa fa-arrow-right eat-kpi-arrow" title="View details"/>
+                    </div>
+                </div>
+
+                <!-- Total Valuation -->
+                <div class="eat-kpi-card kpi-valuation" t-on-click="() => this.openAllAssets()">
+                    <div class="eat-kpi-header">
+                        <span class="eat-kpi-label">Asset Valuation</span>
+                        <div class="eat-kpi-icon"><i class="fa fa-usd" title="Valuation"/></div>
+                    </div>
+                    <div class="eat-kpi-body">
+                        <div class="eat-kpi-value fs-3" t-out="state.metrics.total_valuation"/>
+                        <span class="eat-kpi-subtext">Recorded capital value</span>
+                    </div>
+                    <div class="eat-kpi-footer">
+                        <span class="eat-badge-pill pill-teal"><i class="fa fa-line-chart"/> Total Value</span>
+                        <i class="fa fa-arrow-right eat-kpi-arrow" title="View details"/>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 3. Lifecycle Status & Category Breakdown Row -->
+            <div class="eat-section-row">
+                
+                <!-- Status Pipeline -->
+                <div class="eat-card">
+                    <div class="eat-card-header">
+                        <h2 class="eat-card-title">
+                            <span class="eat-card-icon icon-blue"><i class="fa fa-pie-chart" title="Distribution"/></span>
+                            Asset Lifecycle Distribution
+                        </h2>
+                        <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.openAllAssets()">View All</button>
+                    </div>
+                    <div class="eat-card-body">
+                        <!-- Multi-color Segmented Progress Bar -->
+                        <div class="eat-progress-bar-wrap" t-if="state.metrics.total_assets > 0">
+                            <div class="eat-progress-segment eat-seg-available"
+                                 t-att-style="'width:' + (state.metrics.available_assets / state.metrics.total_assets * 100) + '%;'"
+                                 title="Available"/>
+                            <div class="eat-progress-segment eat-seg-assigned"
+                                 t-att-style="'width:' + (state.metrics.assigned_assets / state.metrics.total_assets * 100) + '%;'"
+                                 title="Assigned"/>
+                            <div class="eat-progress-segment eat-seg-maintenance"
+                                 t-att-style="'width:' + (state.metrics.maintenance_assets / state.metrics.total_assets * 100) + '%;'"
+                                 title="Maintenance"/>
+                            <div class="eat-progress-segment eat-seg-retired"
+                                 t-att-style="'width:' + (state.metrics.retired_assets / state.metrics.total_assets * 100) + '%;'"
+                                 title="Retired"/>
+                            <div class="eat-progress-segment eat-seg-lost"
+                                 t-att-style="'width:' + (state.metrics.lost_assets / state.metrics.total_assets * 100) + '%;'"
+                                 title="Lost"/>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="eat-status-legend">
+                            <div class="eat-legend-item cursor-pointer" t-on-click="() => this.openAvailableAssets()">
+                                <div class="eat-legend-label">
+                                    <div class="eat-legend-dot eat-seg-available"/>
+                                    <span>Available</span>
+                                </div>
+                                <span class="eat-legend-count" t-out="state.metrics.available_assets"/>
+                            </div>
+                            <div class="eat-legend-item cursor-pointer" t-on-click="() => this.openAssignedAssets()">
+                                <div class="eat-legend-label">
+                                    <div class="eat-legend-dot eat-seg-assigned"/>
+                                    <span>Assigned</span>
+                                </div>
+                                <span class="eat-legend-count" t-out="state.metrics.assigned_assets"/>
+                            </div>
+                            <div class="eat-legend-item cursor-pointer" t-on-click="() => this.openMaintenanceAssets()">
+                                <div class="eat-legend-label">
+                                    <div class="eat-legend-dot eat-seg-maintenance"/>
+                                    <span>Maintenance</span>
+                                </div>
+                                <span class="eat-legend-count" t-out="state.metrics.maintenance_assets"/>
+                            </div>
+                            <div class="eat-legend-item cursor-pointer">
+                                <div class="eat-legend-label">
+                                    <div class="eat-legend-dot eat-seg-retired"/>
+                                    <span>Retired</span>
+                                </div>
+                                <span class="eat-legend-count" t-out="state.metrics.retired_assets"/>
+                            </div>
+                            <div class="eat-legend-item cursor-pointer">
+                                <div class="eat-legend-label">
+                                    <div class="eat-legend-dot eat-seg-lost"/>
+                                    <span>Lost</span>
+                                </div>
+                                <span class="eat-legend-count" t-out="state.metrics.lost_assets"/>
+                            </div>
+                        </div>
+
+                        <!-- Department Allocation if available -->
+                        <t t-if="state.metrics.departments.length > 0">
+                            <hr class="my-3"/>
+                            <h6 class="text-muted fw-bold mb-2 small text-uppercase">Top Deployed Departments</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <t t-foreach="state.metrics.departments" t-as="dept" t-key="dept.name">
+                                    <span class="badge bg-light text-dark border px-2 py-1">
+                                        <t t-out="dept.name"/>: <b><t t-out="dept.count"/></b> (<t t-out="dept.percentage"/>%)
+                                    </span>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown -->
+                <div class="eat-card">
+                    <div class="eat-card-header">
+                        <h2 class="eat-card-title">
+                            <span class="eat-card-icon icon-purple"><i class="fa fa-tags" title="Categories"/></span>
+                            Assets by Category
+                        </h2>
+                        <span class="text-muted small"><t t-out="state.metrics.categories.length"/> Categories</span>
+                    </div>
+                    <div class="eat-card-body">
+                        <t t-if="state.metrics.categories.length > 0">
+                            <div class="eat-category-list">
+                                <t t-foreach="state.metrics.categories" t-as="cat" t-key="cat.id">
+                                    <div class="eat-category-row" t-on-click="() => this.openCategoryAssets(cat.id, cat.name)">
+                                        <div class="eat-cat-info">
+                                            <span>
+                                                <i class="fa fa-folder-o text-muted me-1" title="Category"/>
+                                                <t t-out="cat.name"/>
+                                                <small class="text-muted ms-1" t-if="cat.code">(<t t-out="cat.code"/>)</small>
+                                            </span>
+                                            <span>
+                                                <b><t t-out="cat.count"/></b>
+                                                <small class="text-muted ms-1">(<t t-out="cat.percentage"/>%)</small>
+                                            </span>
+                                        </div>
+                                        <div class="eat-cat-bar">
+                                            <div class="eat-cat-fill" t-att-style="'width:' + cat.percentage + '%;'"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="eat-empty-state">
+                                <div class="eat-empty-icon-wrap">
+                                    <i class="fa fa-folder-open-o" title="Empty"/>
+                                </div>
+                                <p class="fw-semibold">No categorized assets registered yet.</p>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 4. Action Queues: Urgent Overdue & Maintenance Tasks -->
+            <div class="eat-section-row">
+                
+                <!-- Urgent Overdue Table -->
+                <div class="eat-card">
+                    <div class="eat-card-header">
+                        <h2 class="eat-card-title text-danger">
+                            <span class="eat-card-icon icon-red"><i class="fa fa-clock-o text-danger" title="Overdue"/></span>
+                            Urgent Overdue Returns
+                        </h2>
+                        <button class="btn btn-sm btn-outline-danger" t-on-click="() => this.openOverdueAssignments()">
+                            View All Overdue (<t t-out="state.metrics.overdue_count"/>)
+                        </button>
+                    </div>
+                    <div class="eat-card-body p-0">
+                        <t t-if="state.metrics.urgent_overdue.length > 0">
+                            <div class="eat-table-responsive">
+                                <table class="eat-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Asset</th>
+                                            <th>Employee</th>
+                                            <th>Due Date</th>
+                                            <th>Delay</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.metrics.urgent_overdue" t-as="item" t-key="item.assignment_id">
+                                            <tr class="eat-clickable-row" t-on-click="() => this.openAssignment(item.assignment_id)">
+                                                <td>
+                                                    <b t-out="item.asset_name"/><br/>
+                                                    <small class="text-muted" t-out="item.asset_code"/>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="fa fa-user me-1 text-muted" title="Employee"/> <t t-out="item.employee_name"/>
+                                                    </span>
+                                                </td>
+                                                <td class="text-danger fw-bold" t-out="item.expected_return_date"/>
+                                                <td>
+                                                    <span class="badge bg-danger">
+                                                        +<t t-out="item.days_overdue"/> days
+                                                    </span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-sm btn-outline-primary" title="Open Assignment">
+                                                        Inspect <i class="fa fa-chevron-right ms-1"/>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="eat-empty-state">
+                                <div class="eat-empty-icon-wrap" style="background: #ecfdf5; color: #059669;">
+                                    <i class="fa fa-check-circle" title="Success"/>
+                                </div>
+                                <p class="text-success fw-bold">All assets returned on schedule! No overdue records.</p>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Active Maintenance Pipeline -->
+                <div class="eat-card">
+                    <div class="eat-card-header">
+                        <h2 class="eat-card-title text-warning">
+                            <span class="eat-card-icon icon-amber"><i class="fa fa-wrench text-warning" title="Maintenance"/></span>
+                            Active Maintenance Queue
+                        </h2>
+                        <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.openAllMaintenances()">
+                            View All Maintenances
+                        </button>
+                    </div>
+                    <div class="eat-card-body p-0">
+                        <t t-if="state.metrics.maintenances.length > 0">
+                            <div class="eat-table-responsive">
+                                <table class="eat-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Task Name</th>
+                                            <th>Asset</th>
+                                            <th>Technician</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.metrics.maintenances" t-as="maint" t-key="maint.id">
+                                            <tr class="eat-clickable-row" t-on-click="() => this.openMaintenance(maint.id)">
+                                                <td>
+                                                    <b t-out="maint.name"/><br/>
+                                                    <small class="text-muted text-capitalize" t-out="maint.maintenance_type"/>
+                                                </td>
+                                                <td t-out="maint.asset_name"/>
+                                                <td>
+                                                    <span class="text-muted"><i class="fa fa-user-circle me-1" title="Technician"/> <t t-out="maint.technician_name"/></span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge" t-att-class="maint.state === 'in_progress' ? 'bg-warning text-dark' : 'bg-info'">
+                                                        <t t-out="maint.state"/>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="eat-empty-state">
+                                <div class="eat-empty-icon-wrap">
+                                    <i class="fa fa-shield text-muted" title="Clean"/>
+                                </div>
+                                <p class="fw-semibold">No active repair or maintenance tasks in queue.</p>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 5. Recent Allocations & Warranty Expiry Row -->
+            <div class="eat-section-row">
+                
+                <!-- Recent Allocations -->
+                <div class="eat-card">
+                    <div class="eat-card-header">
+                        <h2 class="eat-card-title">
+                            <span class="eat-card-icon icon-slate"><i class="fa fa-history" title="History"/></span>
+                            Recent Asset Allocations
+                        </h2>
+                        <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.openAllAssignments()">
+                            History Log
+                        </button>
+                    </div>
+                    <div class="eat-card-body p-0">
+                        <t t-if="state.metrics.recent_allocations.length > 0">
+                            <div class="eat-table-responsive">
+                                <table class="eat-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Asset</th>
+                                            <th>Assigned To</th>
+                                            <th>Issue Date</th>
+                                            <th>Condition</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.metrics.recent_allocations" t-as="alloc" t-key="alloc.assignment_id">
+                                            <tr class="eat-clickable-row" t-on-click="() => this.openAssignment(alloc.assignment_id)">
+                                                <td>
+                                                    <b t-out="alloc.asset_name"/><br/>
+                                                    <small class="text-muted" t-out="alloc.asset_code"/>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-semibold"><i class="fa fa-user me-1 text-primary" title="Employee"/> <t t-out="alloc.employee_name"/></span>
+                                                </td>
+                                                <td class="text-muted" t-out="alloc.assigned_date"/>
+                                                <td>
+                                                    <span class="eat-badge-condition" t-att-class="'cond-' + alloc.condition_out" t-out="alloc.condition_out"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="eat-empty-state">
+                                <div class="eat-empty-icon-wrap">
+                                    <i class="fa fa-inbox text-muted" title="Inbox"/>
+                                </div>
+                                <p class="fw-semibold">No assignments recorded yet.</p>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Warranties Expiring Soon -->
+                <div class="eat-card">
+                    <div class="eat-card-header">
+                        <h2 class="eat-card-title">
+                            <span class="eat-card-icon icon-violet"><i class="fa fa-shield text-purple" title="Warranty"/></span>
+                            Warranty Expiry Alerts (Next 30 Days)
+                        </h2>
+                        <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.openExpiringWarranties()">
+                            View All
+                        </button>
+                    </div>
+                    <div class="eat-card-body p-0">
+                        <t t-if="state.metrics.warranty_expiring.length > 0">
+                            <div class="eat-table-responsive">
+                                <table class="eat-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Asset</th>
+                                            <th>Warranty End Date</th>
+                                            <th>Remaining</th>
+                                            <th class="text-end">Inspect</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.metrics.warranty_expiring" t-as="warr" t-key="warr.id">
+                                            <tr class="eat-clickable-row" t-on-click="() => this.openAsset(warr.id)">
+                                                <td>
+                                                    <b t-out="warr.name"/><br/>
+                                                    <small class="text-muted" t-out="warr.asset_code"/>
+                                                </td>
+                                                <td class="fw-semibold text-danger" t-out="warr.warranty_end_date"/>
+                                                <td>
+                                                    <span class="badge bg-warning text-dark">
+                                                        <t t-out="warr.days_left"/> days left
+                                                    </span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-sm btn-outline-secondary" title="View details">
+                                                        <i class="fa fa-external-link"/>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="eat-empty-state">
+                                <div class="eat-empty-icon-wrap" style="background: #f5f3ff; color: #7c3aed;">
+                                    <i class="fa fa-shield" title="Shield"/>
+                                </div>
+                                <p class="fw-semibold text-purple">All asset warranties are in good standing (none expiring within 30 days).</p>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+            </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

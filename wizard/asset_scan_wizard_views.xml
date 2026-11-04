@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_asset_scan_wizard_form" model="ir.ui.view">
+        <field name="name">asset.scan.wizard.form</field>
+        <field name="model">asset.scan.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Scan Asset Barcode / QR Tag">
+                <div class="alert alert-info d-flex align-items-center gap-2 mb-3" role="alert">
+                    <i class="fa fa-info-circle fa-2x text-primary me-2" title="Info"/>
+                    <div>
+                        <strong>How to scan:</strong>
+                        <ul class="mb-0 ps-3 mt-1">
+                            <li><strong>Handheld Scanner:</strong> Aim your USB or Bluetooth barcode/QR scanner at the physical asset tag.</li>
+                            <li><strong>Manual Lookup:</strong> Type any <strong>Asset Code</strong> (e.g. <code>MAC-11</code>, <code>MOU-01</code>), <strong>Barcode</strong>, or <strong>Serial Number</strong> below and press <kbd>Enter</kbd>.</li>
+                        </ul>
+                    </div>
+                </div>
+                <group>
+                    <field name="search_code" placeholder="Scan barcode or type code (e.g. MAC-11, MOU-01)..." class="o_field_highlight"/>
+                </group>
+                <div class="mb-3">
+                    <button name="action_lookup_asset" string="Find / Scan Asset" type="object" class="btn-primary" icon="fa-barcode"/>
+                </div>
+
+                <notebook invisible="not asset_id">
+                    <page string="Scanned Asset Details" name="scanned_asset">
+                        <group>
+                            <group string="Equipment">
+                                <field name="asset_id" readonly="1"/>
+                                <field name="asset_name"/>
+                                <field name="asset_state" widget="badge"
+                                       decoration-success="asset_state == 'available'"
+                                       decoration-info="asset_state == 'assigned'"
+                                       decoration-warning="asset_state == 'maintenance'"
+                                       decoration-danger="asset_state == 'scrapped'"/>
+                            </group>
+                            <group string="Assignment &amp; Location">
+                                <field name="asset_employee_id"/>
+                                <field name="asset_condition"/>
+                                <field name="asset_location"/>
+                            </group>
+                        </group>
+                        <div class="d-flex gap-2 mt-2">
+                            <button name="action_open_asset" string="Open Full Record" type="object" class="btn-secondary" icon="fa-external-link"/>
+                            <button name="action_quick_assign" string="Assign to Employee" type="object" class="btn-success" icon="fa-user-plus" invisible="asset_state != 'available'"/>
+                            <button name="action_quick_return" string="Return Asset" type="object" class="btn-warning" icon="fa-undo" invisible="asset_state != 'assigned'"/>
+                        </div>
+                    </page>
+                </notebook>
+
+                <footer>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_asset_scan_wizard" model="ir.actions.act_window">
+        <field name="name">Scan Asset Tag</field>
+        <field name="res_model">asset.scan.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_asset_scan_wizard_form"/>
+    </record>
+</odoo>

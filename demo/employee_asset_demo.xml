@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ================================================================== -->
+        <!-- 1. DEMO DEPARTMENTS                                                -->
+        <!-- ================================================================== -->
+        <record id="demo_dept_engineering" model="hr.department">
+            <field name="name">Engineering &amp; DevOps</field>
+        </record>
+
+        <record id="demo_dept_product_design" model="hr.department">
+            <field name="name">Product &amp; UI/UX Design</field>
+        </record>
+
+        <record id="demo_dept_it_infrastructure" model="hr.department">
+            <field name="name">IT Operations &amp; Security</field>
+        </record>
+
+        <record id="demo_dept_marketing" model="hr.department">
+            <field name="name">Marketing &amp; Growth</field>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- 2. DEMO EMPLOYEES                                                  -->
+        <!-- ================================================================== -->
+        <record id="demo_employee_sarah" model="hr.employee">
+            <field name="name">Sarah Connor</field>
+            <field name="job_title">Principal Systems Architect</field>
+            <field name="work_email">sarah.connor@example.com</field>
+            <field name="department_id" ref="demo_dept_engineering"/>
+        </record>
+
+        <record id="demo_employee_marcus" model="hr.employee">
+            <field name="name">Marcus Vance</field>
+            <field name="job_title">Senior Product Designer</field>
+            <field name="work_email">marcus.vance@example.com</field>
+            <field name="department_id" ref="demo_dept_product_design"/>
+        </record>
+
+        <record id="demo_employee_alex" model="hr.employee">
+            <field name="name">Alex Rivera</field>
+            <field name="job_title">Lead DevOps Engineer</field>
+            <field name="work_email">alex.rivera@example.com</field>
+            <field name="department_id" ref="demo_dept_it_infrastructure"/>
+        </record>
+
+        <record id="demo_employee_elena" model="hr.employee">
+            <field name="name">Elena Rostova</field>
+            <field name="job_title">Head of Content Marketing</field>
+            <field name="work_email">elena.rostova@example.com</field>
+            <field name="department_id" ref="demo_dept_marketing"/>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- 3. DEMO ASSET CATEGORIES                                           -->
+        <!-- ================================================================== -->
+        <record id="demo_cat_laptops" model="employee.asset.category">
+            <field name="name">Laptops &amp; Ultrabooks</field>
+            <field name="code">LPT</field>
+            <field name="description">Corporate mobile workstations, ultrabooks, and portable development laptops.</field>
+        </record>
+
+        <record id="demo_cat_workstations" model="employee.asset.category">
+            <field name="name">Workstations &amp; Desktops</field>
+            <field name="code">DSK</field>
+            <field name="description">High-performance tower PCs, lab computation workstations, and desktop rigs.</field>
+        </record>
+
+        <record id="demo_cat_monitors" model="employee.asset.category">
+            <field name="name">Monitors &amp; Displays</field>
+            <field name="code">MON</field>
+            <field name="description">4K, Ultrawide, color-accurate design monitors, and docking displays.</field>
+        </record>
+
+        <record id="demo_cat_mobile" model="employee.asset.category">
+            <field name="name">Smartphones &amp; Tablets</field>
+            <field name="code">MOB</field>
+            <field name="description">Company-issued iPhones, Android flagships, iPads, and mobile test devices.</field>
+        </record>
+
+        <record id="demo_cat_peripherals" model="employee.asset.category">
+            <field name="name">Peripherals &amp; Audio</field>
+            <field name="code">ACC</field>
+            <field name="description">Keyboards, ergonomic mice, ANC headsets, webcams, and presentation remotes.</field>
+        </record>
+
+        <record id="demo_cat_network" model="employee.asset.category">
+            <field name="name">Network &amp; Infrastructure</field>
+            <field name="code">NET</field>
+            <field name="description">Managed PoE switches, enterprise firewalls, access points, and rackmount gear.</field>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- 4. DEMO HARDWARE ASSETS                                            -->
+        <!-- ================================================================== -->
+
+        <!-- Asset 1: Flagship Laptop (Assigned with Bundled Sub-Assets) -->
+        <record id="demo_asset_macbook_pro" model="employee.asset">
+            <field name="name">Apple MacBook Pro 16" M3 Max</field>
+            <field name="asset_code">AST-LAP-001</field>
+            <field name="barcode">EAT-AST-LAP-001</field>
+            <field name="serial_number">C02G1001MD6R</field>
+            <field name="category_id" ref="demo_cat_laptops"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=6)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">3499.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(years=2, months=6)).strftime('%Y-%m-%d')"/>
+            <field name="state">assigned</field>
+            <field name="condition">good</field>
+            <field name="employee_id" ref="demo_employee_sarah"/>
+            <field name="location">HQ - Floor 3 (Architecture Bay)</field>
+            <field name="description">Top-tier development machine: M3 Max 16-Core CPU, 40-Core GPU, 36GB Unified Memory, 1TB SSD.</field>
+        </record>
+
+        <!-- Asset 2: Bundled Monitor (Child of Asset 1) -->
+        <record id="demo_asset_dell_monitor_4k" model="employee.asset">
+            <field name="name">Dell UltraSharp 32" 4K USB-C Hub Monitor (U3223QE)</field>
+            <field name="asset_code">AST-MON-001</field>
+            <field name="barcode">EAT-AST-MON-001</field>
+            <field name="serial_number">CN09F87001MON</field>
+            <field name="category_id" ref="demo_cat_monitors"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=6)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">899.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(years=2, months=6)).strftime('%Y-%m-%d')"/>
+            <field name="state">assigned</field>
+            <field name="condition">good</field>
+            <field name="employee_id" ref="demo_employee_sarah"/>
+            <field name="parent_id" ref="demo_asset_macbook_pro"/>
+            <field name="location">HQ - Floor 3 (Desk 301)</field>
+            <field name="description">IPS Black panel, 98% DCI-P3, 90W Power Delivery over USB-C.</field>
+        </record>
+
+        <!-- Asset 3: Bundled Keyboard (Child of Asset 1) -->
+        <record id="demo_asset_magic_keyboard" model="employee.asset">
+            <field name="name">Apple Magic Keyboard with Touch ID &amp; Keypad</field>
+            <field name="asset_code">AST-PER-001</field>
+            <field name="barcode">EAT-AST-PER-001</field>
+            <field name="serial_number">MK-ID-001PER</field>
+            <field name="category_id" ref="demo_cat_peripherals"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=6)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">199.00</field>
+            <field name="state">assigned</field>
+            <field name="condition">good</field>
+            <field name="employee_id" ref="demo_employee_sarah"/>
+            <field name="parent_id" ref="demo_asset_macbook_pro"/>
+            <field name="location">HQ - Floor 3 (Desk 301)</field>
+            <field name="description">Wireless Bluetooth keyboard with integrated biometric Touch ID.</field>
+        </record>
+
+        <!-- Asset 4: In-Stock Ready Laptop (Available) -->
+        <record id="demo_asset_dell_xps" model="employee.asset">
+            <field name="name">Dell XPS 15 9530 (i9-13900H / 32GB / 1TB / RTX 4070)</field>
+            <field name="asset_code">AST-LAP-002</field>
+            <field name="barcode">EAT-AST-LAP-002</field>
+            <field name="serial_number">DELL-XPS-002LAP</field>
+            <field name="category_id" ref="demo_cat_laptops"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=1)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">2399.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(years=2, months=11)).strftime('%Y-%m-%d')"/>
+            <field name="state">available</field>
+            <field name="condition">new</field>
+            <field name="location">IT Storage Room A - Shelf B2</field>
+            <field name="description">Premium Windows developer machine, factory reset and ready for immediate deployment.</field>
+        </record>
+
+        <!-- Asset 5: In-Stock Ultrabook (Available) -->
+        <record id="demo_asset_macbook_air" model="employee.asset">
+            <field name="name">Apple MacBook Air 15" M2 (16GB RAM / 512GB SSD)</field>
+            <field name="asset_code">AST-LAP-003</field>
+            <field name="barcode">EAT-AST-LAP-003</field>
+            <field name="serial_number">C02F2003M2AB</field>
+            <field name="category_id" ref="demo_cat_laptops"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=8)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">1499.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(years=1, months=4)).strftime('%Y-%m-%d')"/>
+            <field name="state">available</field>
+            <field name="condition">good</field>
+            <field name="location">IT Storage Room A - Shelf B1</field>
+            <field name="description">Lightweight executive laptop returned after project; inspected and ready for reassignment.</field>
+        </record>
+
+        <!-- Asset 6: Tower Workstation (Assigned to DevOps) -->
+        <record id="demo_asset_precision_workstation" model="employee.asset">
+            <field name="name">Dell Precision 5820 Tower (Xeon W-2245 / 64GB ECC / RTX A4000)</field>
+            <field name="asset_code">AST-DSK-001</field>
+            <field name="barcode">EAT-AST-DSK-001</field>
+            <field name="serial_number">DELL-PREC-001DSK</field>
+            <field name="category_id" ref="demo_cat_workstations"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=10)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">4250.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(years=2, months=2)).strftime('%Y-%m-%d')"/>
+            <field name="state">assigned</field>
+            <field name="condition">good</field>
+            <field name="employee_id" ref="demo_employee_alex"/>
+            <field name="location">HQ - Server Lab B (Rack Unit 4)</field>
+            <field name="description">High-performance continuous integration and containerization test workstation.</field>
+        </record>
+
+        <!-- Asset 7: Device in Maintenance (Under Maintenance) -->
+        <record id="demo_asset_thinkpad_maint" model="employee.asset">
+            <field name="name">Lenovo ThinkPad X1 Carbon Gen 11 (Core i7 / 16GB / 512GB)</field>
+            <field name="asset_code">AST-LAP-004</field>
+            <field name="barcode">EAT-AST-LAP-004</field>
+            <field name="serial_number">PF49XK004LAP</field>
+            <field name="category_id" ref="demo_cat_laptops"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=14)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">1850.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(years=1, months=10)).strftime('%Y-%m-%d')"/>
+            <field name="state">maintenance</field>
+            <field name="condition">fair</field>
+            <field name="location">IT Hardware Repair Bench</field>
+            <field name="description">In service queue for battery degradation and cooling fan maintenance.</field>
+        </record>
+
+        <!-- Asset 8: Overdue Return Device (Assigned, Expected Return Date in the Past) -->
+        <record id="demo_asset_ipad_overdue" model="employee.asset">
+            <field name="name">Apple iPad Pro 12.9" M2 (256GB Wi-Fi + 5G Cellular Space Gray)</field>
+            <field name="asset_code">AST-MOB-001</field>
+            <field name="barcode">EAT-AST-MOB-001</field>
+            <field name="serial_number">DMPG1001MOB</field>
+            <field name="category_id" ref="demo_cat_mobile"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=5)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">1299.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(years=1, months=7)).strftime('%Y-%m-%d')"/>
+            <field name="state">assigned</field>
+            <field name="condition">good</field>
+            <field name="employee_id" ref="demo_employee_marcus"/>
+            <field name="location">Remote / Client Onsite Testing</field>
+            <field name="description">Field design evaluation unit assigned for client prototype presentation.</field>
+        </record>
+
+        <!-- Asset 9: Warranty Expiring Soon (Ends in 12 Days!) -->
+        <record id="demo_asset_samsung_monitor_expiring" model="employee.asset">
+            <field name="name">Samsung ViewFinity S8 32" 4K UHD Graphic Display</field>
+            <field name="asset_code">AST-MON-002</field>
+            <field name="barcode">EAT-AST-MON-002</field>
+            <field name="serial_number">SAM-VF8-002MON</field>
+            <field name="category_id" ref="demo_cat_monitors"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(years=3)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">699.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(days=12)).strftime('%Y-%m-%d')"/>
+            <field name="state">available</field>
+            <field name="condition">good</field>
+            <field name="location">HQ - Design Studio Pod 2</field>
+            <field name="description">Calibrated 4K display. Manufacturer warranty expires in 12 days; consider extended coverage.</field>
+        </record>
+
+        <!-- Asset 10: Assigned Smartphone -->
+        <record id="demo_asset_iphone" model="employee.asset">
+            <field name="name">Apple iPhone 15 Pro (256GB Natural Titanium)</field>
+            <field name="asset_code">AST-MOB-002</field>
+            <field name="barcode">EAT-AST-MOB-002</field>
+            <field name="serial_number">F2LXK002MOB</field>
+            <field name="category_id" ref="demo_cat_mobile"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=7)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">1099.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(months=17)).strftime('%Y-%m-%d')"/>
+            <field name="state">assigned</field>
+            <field name="condition">good</field>
+            <field name="employee_id" ref="demo_employee_elena"/>
+            <field name="location">HQ - Marketing Suite</field>
+            <field name="description">Corporate mobile device assigned for social media content creation and communications.</field>
+        </record>
+
+        <!-- Asset 11: In-Stock Ergonomic Mouse (Available) -->
+        <record id="demo_asset_logitech_mx" model="employee.asset">
+            <field name="name">Logitech MX Master 3S Ergonomic Mouse</field>
+            <field name="asset_code">AST-PER-002</field>
+            <field name="barcode">EAT-AST-PER-002</field>
+            <field name="serial_number">LOGI-MX3S-002PER</field>
+            <field name="category_id" ref="demo_cat_peripherals"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=2)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">119.00</field>
+            <field name="state">available</field>
+            <field name="condition">new</field>
+            <field name="location">IT Storage Room A - Shelf D1</field>
+            <field name="description">Quiet click 8K DPI sensor wireless mouse for developer ergonomics.</field>
+        </record>
+
+        <!-- Asset 12: In-Stock ANC Headset (Available) -->
+        <record id="demo_asset_sony_headset" model="employee.asset">
+            <field name="name">Sony WH-1000XM5 Noise Canceling Headphones</field>
+            <field name="asset_code">AST-PER-003</field>
+            <field name="barcode">EAT-AST-PER-003</field>
+            <field name="serial_number">SONY-WH5-003PER</field>
+            <field name="category_id" ref="demo_cat_peripherals"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=4)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">399.00</field>
+            <field name="state">available</field>
+            <field name="condition">good</field>
+            <field name="location">IT Storage Room A - Shelf D2</field>
+            <field name="description">Wireless active noise-canceling headset for remote calls and focus sessions.</field>
+        </record>
+
+        <!-- Asset 13: Enterprise Network Switch (Available) -->
+        <record id="demo_asset_cisco_switch" model="employee.asset">
+            <field name="name">Cisco Catalyst 1000 24-Port Gigabit Managed PoE+ Switch</field>
+            <field name="asset_code">AST-NET-001</field>
+            <field name="barcode">EAT-AST-NET-001</field>
+            <field name="serial_number">CSCO-CAT1K-001NET</field>
+            <field name="category_id" ref="demo_cat_network"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(months=3)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">850.00</field>
+            <field name="warranty_end_date" eval="(datetime.now() + relativedelta(years=4, months=9)).strftime('%Y-%m-%d')"/>
+            <field name="state">available</field>
+            <field name="condition">new</field>
+            <field name="location">Server Rack 1 - HQ Data Room</field>
+            <field name="description">Spare enterprise PoE switch for office floor network redundancy.</field>
+        </record>
+
+        <!-- Asset 14: Decommissioned Laptop (Retired) -->
+        <record id="demo_asset_macbook_retired" model="employee.asset">
+            <field name="name">Apple MacBook Pro 15" (2017 Core i7 - E-Waste)</field>
+            <field name="asset_code">AST-LAP-005</field>
+            <field name="barcode">EAT-AST-LAP-005</field>
+            <field name="serial_number">C02T9999RETLAP</field>
+            <field name="category_id" ref="demo_cat_laptops"/>
+            <field name="purchase_date" eval="(datetime.now() - relativedelta(years=7)).strftime('%Y-%m-%d')"/>
+            <field name="purchase_price">2799.00</field>
+            <field name="state">retired</field>
+            <field name="condition">fair</field>
+            <field name="location">E-Waste / Recycling Locker</field>
+            <field name="description">End of official macOS lifecycle support. Hard drives securely erased and sanitized for e-waste recycling.</field>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- 5. DEMO ASSIGNMENTS                                                -->
+        <!-- ================================================================== -->
+
+        <!-- Active Assignment 1: MacBook Pro to Sarah Connor -->
+        <record id="demo_assign_macbook" model="employee.asset.assignment">
+            <field name="asset_id" ref="demo_asset_macbook_pro"/>
+            <field name="employee_id" ref="demo_employee_sarah"/>
+            <field name="assigned_date" eval="(datetime.now() - relativedelta(months=4)).strftime('%Y-%m-%d')"/>
+            <field name="expected_return_date" eval="(datetime.now() + relativedelta(months=8)).strftime('%Y-%m-%d')"/>
+            <field name="condition_out">good</field>
+            <field name="state">assigned</field>
+            <field name="notes">Primary workstation handover for lead architect role.</field>
+        </record>
+
+        <!-- Active Assignment 2: 4K Monitor to Sarah Connor (Bundled) -->
+        <record id="demo_assign_dell_monitor" model="employee.asset.assignment">
+            <field name="asset_id" ref="demo_asset_dell_monitor_4k"/>
+            <field name="employee_id" ref="demo_employee_sarah"/>
+            <field name="assigned_date" eval="(datetime.now() - relativedelta(months=4)).strftime('%Y-%m-%d')"/>
+            <field name="expected_return_date" eval="(datetime.now() + relativedelta(months=8)).strftime('%Y-%m-%d')"/>
+            <field name="condition_out">good</field>
+            <field name="state">assigned</field>
+            <field name="notes">Bundled desk setup monitor.</field>
+        </record>
+
+        <!-- Active Assignment 3: Magic Keyboard to Sarah Connor (Bundled) -->
+        <record id="demo_assign_magic_keyboard" model="employee.asset.assignment">
+            <field name="asset_id" ref="demo_asset_magic_keyboard"/>
+            <field name="employee_id" ref="demo_employee_sarah"/>
+            <field name="assigned_date" eval="(datetime.now() - relativedelta(months=4)).strftime('%Y-%m-%d')"/>
+            <field name="expected_return_date" eval="(datetime.now() + relativedelta(months=8)).strftime('%Y-%m-%d')"/>
+            <field name="condition_out">good</field>
+            <field name="state">assigned</field>
+            <field name="notes">Bundled keyboard peripheral.</field>
+        </record>
+
+        <!-- Active Assignment 4: Precision Workstation to Alex Rivera -->
+        <record id="demo_assign_workstation" model="employee.asset.assignment">
+            <field name="asset_id" ref="demo_asset_precision_workstation"/>
+            <field name="employee_id" ref="demo_employee_alex"/>
+            <field name="assigned_date" eval="(datetime.now() - relativedelta(months=2)).strftime('%Y-%m-%d')"/>
+            <field name="condition_out">good</field>
+            <field name="state">assigned</field>
+            <field name="notes">Dedicated lab workstation for server infrastructure automation.</field>
+        </record>
+
+        <!-- Active Assignment 5: iPhone 15 Pro to Elena Rostova -->
+        <record id="demo_assign_iphone" model="employee.asset.assignment">
+            <field name="asset_id" ref="demo_asset_iphone"/>
+            <field name="employee_id" ref="demo_employee_elena"/>
+            <field name="assigned_date" eval="(datetime.now() - relativedelta(months=1)).strftime('%Y-%m-%d')"/>
+            <field name="condition_out">good</field>
+            <field name="state">assigned</field>
+            <field name="notes">Corporate communications device.</field>
+        </record>
+
+        <!-- Active Assignment 6: Overdue Return iPad to Marcus Vance (Overdue by 7 days!) -->
+        <record id="demo_assign_ipad_overdue" model="employee.asset.assignment">
+            <field name="asset_id" ref="demo_asset_ipad_overdue"/>
+            <field name="employee_id" ref="demo_employee_marcus"/>
+            <field name="assigned_date" eval="(datetime.now() - relativedelta(days=28)).strftime('%Y-%m-%d')"/>
+            <field name="expected_return_date" eval="(datetime.now() - relativedelta(days=7)).strftime('%Y-%m-%d')"/>
+            <field name="condition_out">good</field>
+            <field name="state">assigned</field>
+            <field name="notes">Field design sprint loaner device. Return deadline was 7 days ago!</field>
+        </record>
+
+        <!-- Historical Returned Assignment: MacBook Air previously assigned to Marcus -->
+        <record id="demo_assign_past_returned" model="employee.asset.assignment">
+            <field name="asset_id" ref="demo_asset_macbook_air"/>
+            <field name="employee_id" ref="demo_employee_marcus"/>
+            <field name="assigned_date" eval="(datetime.now() - relativedelta(months=7)).strftime('%Y-%m-%d')"/>
+            <field name="expected_return_date" eval="(datetime.now() - relativedelta(months=2)).strftime('%Y-%m-%d')"/>
+            <field name="returned_date" eval="(datetime.now() - relativedelta(months=2)).strftime('%Y-%m-%d')"/>
+            <field name="condition_out">new</field>
+            <field name="condition_in">good</field>
+            <field name="state">returned</field>
+            <field name="notes">Returned on schedule in good condition upon project conclusion.</field>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- 6. DEMO MAINTENANCE TASKS                                          -->
+        <!-- ================================================================== -->
+
+        <!-- Active In-Progress Maintenance on ThinkPad X1 -->
+        <record id="demo_maint_thinkpad" model="employee.asset.maintenance">
+            <field name="name">Battery Replacement &amp; Cooling Fan Diagnostic</field>
+            <field name="asset_id" ref="demo_asset_thinkpad_maint"/>
+            <field name="maintenance_type">corrective</field>
+            <field name="description">User reported reduced battery endurance (drops from 100% to 15% in 45 mins) and occasional fan buzz. Replacing internal 57Wh battery pack and cleaning copper heat pipes.</field>
+            <field name="reported_date" eval="(datetime.now() - relativedelta(days=4)).strftime('%Y-%m-%d')"/>
+            <field name="scheduled_date" eval="(datetime.now() - relativedelta(days=2)).strftime('%Y-%m-%d')"/>
+            <field name="start_date" eval="(datetime.now() - relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="cost">145.00</field>
+            <field name="state">in_progress</field>
+        </record>
+
+        <!-- Completed Preventive Maintenance on Precision Workstation -->
+        <record id="demo_maint_workstation_preventive" model="employee.asset.maintenance">
+            <field name="name">Semi-Annual Thermal Service &amp; RAID Integrity Check</field>
+            <field name="asset_id" ref="demo_asset_precision_workstation"/>
+            <field name="maintenance_type">preventive</field>
+            <field name="description">Preventive checkup: interior dust vacuuming, thermal repasting of Xeon CPU and RTX GPU, SMART health diagnostics on NVMe storage.</field>
+            <field name="reported_date" eval="(datetime.now() - relativedelta(days=25)).strftime('%Y-%m-%d')"/>
+            <field name="scheduled_date" eval="(datetime.now() - relativedelta(days=22)).strftime('%Y-%m-%d')"/>
+            <field name="start_date" eval="(datetime.now() - relativedelta(days=21)).strftime('%Y-%m-%d')"/>
+            <field name="completion_date" eval="(datetime.now() - relativedelta(days=20)).strftime('%Y-%m-%d')"/>
+            <field name="cost">75.00</field>
+            <field name="state">completed</field>
+            <field name="resolution_notes">All hardware tests passed. NVMe SSD endurance at 98%. System vacuumed and thermal paste renewed.</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_asset_bundle_wizard_form" model="ir.ui.view">
+        <field name="name">asset.bundle.wizard.form</field>
+        <field name="model">asset.bundle.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Attach Existing Assets to Bundle">
+                <p class="text-muted">
+                    Check the assets below to attach them to this bundle, then click <b>Attach to Bundle</b>.
+                </p>
+                <group>
+                    <field name="company_id" invisible="1"/>
+                    <field name="parent_asset_id" readonly="1" options="{'no_open': True}"/>
+                </group>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <button name="action_select_all" string="Select All" type="object" class="btn btn-sm btn-outline-primary me-1"/>
+                        <button name="action_deselect_all" string="Deselect All" type="object" class="btn btn-sm btn-outline-secondary"/>
+                    </div>
+                    <field name="selected_count_text" class="text-muted fw-bold"/>
+                </div>
+                <field name="line_ids" nolabel="1">
+                    <list string="Available Assets in Stock" editable="bottom" create="0" delete="0">
+                        <field name="asset_id" column_invisible="1" force_save="1"/>
+                        <field name="selected" string="Select"/>
+                        <field name="asset_code"/>
+                        <field name="name"/>
+                        <field name="category_id"/>
+                        <field name="serial_number" optional="show"/>
+                        <field name="barcode" optional="show"/>
+                        <field name="condition" widget="badge"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm" string="Attach to Bundle" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

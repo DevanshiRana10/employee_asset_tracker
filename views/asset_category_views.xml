@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_employee_asset_category_list" model="ir.ui.view">
+        <field name="name">employee.asset.category.list</field>
+        <field name="model">employee.asset.category</field>
+        <field name="arch" type="xml">
+            <list string="Asset Categories">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="asset_count"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_employee_asset_category_form" model="ir.ui.view">
+        <field name="name">employee.asset.category.form</field>
+        <field name="model">employee.asset.category</field>
+        <field name="arch" type="xml">
+            <form string="Asset Category">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_assets" type="object" class="oe_stat_button" icon="fa-laptop">
+                            <field name="asset_count" widget="statinfo" string="Assets"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Category Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Laptops, Workstations, Monitors"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="e.g. LAP, MON, WKS"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Description &amp; Standards">
+                        <field name="description" nolabel="1" placeholder="Define category standards, replacement policies, specifications..."/>
+                    </group>
+                    <notebook>
+                        <page string="Assets in Category" name="assets">
+                            <field name="asset_ids" readonly="1">
+                                <list string="Assets" decoration-info="state == 'draft'" decoration-success="state == 'available'" decoration-warning="state == 'assigned'">
+                                    <field name="asset_code"/>
+                                    <field name="name"/>
+                                    <field name="employee_id"/>
+                                    <field name="condition" widget="badge"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_employee_asset_category_search" model="ir.ui.view">
+        <field name="name">employee.asset.category.search</field>
+        <field name="model">employee.asset.category</field>
+        <field name="arch" type="xml">
+            <search string="Search Asset Categories">
+                <field name="name"/>
+                <field name="code"/>
+                <separator/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_by_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_employee_asset_category" model="ir.actions.act_window">
+        <field name="name">Asset Categories</field>
+        <field name="res_model">employee.asset.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_employee_asset_category_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new asset category
+            </p>
+            <p>
+                Organize company assets into categories such as Laptops, Phones, Monitors, and Furniture.
+            </p>
+        </field>
+    </record>
+</odoo>

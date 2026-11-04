@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_employee_asset_tracker" model="ir.module.category">
+        <field name="name">Employee Asset Tracker</field>
+        <field name="description">Manage employee assets, assignments, and maintenance</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- Odoo 19 Group Privilege -->
+    <record id="res_groups_privilege_employee_asset" model="res.groups.privilege">
+        <field name="name">Employee Asset Tracker</field>
+        <field name="sequence">60</field>
+        <field name="category_id" ref="module_category_employee_asset_tracker"/>
+    </record>
+
+    <!-- 1. Employee Group (Self-Service) -->
+    <record id="group_employee_asset_emp" model="res.groups">
+        <field name="name">Employee (Self-Service)</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_employee_asset"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('base.group_user')])]"/>
+    </record>
+
+    <!-- 2. Officer Group (Operational IT & HR) -->
+    <record id="group_employee_asset_user" model="res.groups">
+        <field name="name">Officer</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_employee_asset"/>
+        <field name="implied_ids" eval="[(4, ref('group_employee_asset_emp'))]"/>
+    </record>
+
+    <!-- 3. Administrator Group (Management & Governance) -->
+    <record id="group_employee_asset_manager" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="sequence">30</field>
+        <field name="privilege_id" ref="res_groups_privilege_employee_asset"/>
+        <field name="implied_ids" eval="[(4, ref('group_employee_asset_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- MULTI-COMPANY RECORD RULES (Global - Applies to Everyone)          -->
+    <!-- ================================================================== -->
+    <record id="employee_asset_company_rule" model="ir.rule">
+        <field name="name">Employee Asset Multi-Company</field>
+        <field name="model_id" ref="model_employee_asset"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="employee_asset_category_company_rule" model="ir.rule">
+        <field name="name">Employee Asset Category Multi-Company</field>
+        <field name="model_id" ref="model_employee_asset_category"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="employee_asset_assignment_company_rule" model="ir.rule">
+        <field name="name">Employee Asset Assignment Multi-Company</field>
+        <field name="model_id" ref="model_employee_asset_assignment"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="employee_asset_maintenance_company_rule" model="ir.rule">
+        <field name="name">Employee Asset Maintenance Multi-Company</field>
+        <field name="model_id" ref="model_employee_asset_maintenance"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="employee_asset_accessory_company_rule" model="ir.rule">
+        <field name="name">Employee Asset Accessory Multi-Company</field>
+        <field name="model_id" ref="model_employee_asset_accessory"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- GROUP-SPECIFIC RECORD RULES (Self-Service vs Officer Access)       -->
+    <!-- ================================================================== -->
+
+    <!-- Employee Asset: Self-Service Rule -->
+    <record id="employee_asset_personal_rule" model="ir.rule">
+        <field name="name">Employee Asset: Own Assigned Equipment</field>
+        <field name="model_id" ref="model_employee_asset"/>
+        <field name="groups" eval="[(4, ref('group_employee_asset_emp'))]"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+    </record>
+
+    <!-- Employee Asset: Officer / Admin Full Company Access -->
+    <record id="employee_asset_officer_rule" model="ir.rule">
+        <field name="name">Employee Asset: Officer Company Access</field>
+        <field name="model_id" ref="model_employee_asset"/>
+        <field name="groups" eval="[(4, ref('group_employee_asset_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Asset Assignment: Self-Service Rule -->
+    <record id="employee_asset_assignment_personal_rule" model="ir.rule">
+        <field name="name">Employee Asset Assignment: Own Assignments</field>
+        <field name="model_id" ref="model_employee_asset_assignment"/>
+        <field name="groups" eval="[(4, ref('group_employee_asset_emp'))]"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+    </record>
+
+    <!-- Asset Assignment: Officer / Admin Full Company Access -->
+    <record id="employee_asset_assignment_officer_rule" model="ir.rule">
+        <field name="name">Employee Asset Assignment: Officer Company Access</field>
+        <field name="model_id" ref="model_employee_asset_assignment"/>
+        <field name="groups" eval="[(4, ref('group_employee_asset_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Asset Maintenance: Self-Service Rule -->
+    <record id="employee_asset_maintenance_personal_rule" model="ir.rule">
+        <field name="name">Employee Asset Maintenance: Own Asset Tasks</field>
+        <field name="model_id" ref="model_employee_asset_maintenance"/>
+        <field name="groups" eval="[(4, ref('group_employee_asset_emp'))]"/>
+        <field name="domain_force">['|', ('asset_id.employee_id.user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+    </record>
+
+    <!-- Asset Maintenance: Officer / Admin Full Company Access -->
+    <record id="employee_asset_maintenance_officer_rule" model="ir.rule">
+        <field name="name">Employee Asset Maintenance: Officer Company Access</field>
+        <field name="model_id" ref="model_employee_asset_maintenance"/>
+        <field name="groups" eval="[(4, ref('group_employee_asset_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+</odoo>

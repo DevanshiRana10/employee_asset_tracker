@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_employee_asset_assignment_list" model="ir.ui.view">
+        <field name="name">employee.asset.assignment.list</field>
+        <field name="model">employee.asset.assignment</field>
+        <field name="arch" type="xml">
+            <list string="Assignment History" decoration-success="state == 'assigned' and not is_overdue" decoration-muted="state == 'returned'" decoration-danger="state == 'cancelled' or is_overdue">
+                <field name="name"/>
+                <field name="asset_id"/>
+                <field name="employee_id"/>
+                <field name="department_id" optional="show"/>
+                <field name="assigned_date"/>
+                <field name="expected_return_date" optional="show"/>
+                <field name="is_overdue" widget="boolean" optional="show"/>
+                <field name="returned_date"/>
+                <field name="condition_out" optional="hide"/>
+                <field name="condition_in" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_employee_asset_assignment_form" model="ir.ui.view">
+        <field name="name">employee.asset.assignment.form</field>
+        <field name="model">employee.asset.assignment</field>
+        <field name="arch" type="xml">
+            <form string="Asset Assignment">
+                <header>
+                    <button name="action_open_return_wizard" string="Process Return" type="object" class="oe_highlight" invisible="state != 'assigned'"/>
+                    <button name="action_cancel" string="Cancel Assignment" type="object" invisible="state != 'assigned'" confirm="Are you sure you want to cancel this active assignment?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="assigned,returned,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Assignment Reference"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="allocation" string="Asset &amp; Employee">
+                            <field name="asset_id" readonly="state != 'assigned'"/>
+                            <field name="employee_id" readonly="state != 'assigned'"/>
+                            <field name="department_id"/>
+                        </group>
+                        <group name="schedule" string="Schedule &amp; Handover">
+                            <field name="assigned_date" readonly="state != 'assigned'"/>
+                            <field name="expected_return_date" readonly="state != 'assigned'"/>
+                            <field name="is_overdue" invisible="state != 'assigned'"/>
+                            <field name="returned_date" readonly="1"/>
+                            <field name="assigned_by_id" readonly="1"/>
+                            <field name="returned_to_id" readonly="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Condition Check">
+                            <field name="condition_out" readonly="state != 'assigned'"/>
+                            <field name="condition_in" readonly="state != 'assigned'"/>
+                        </group>
+                    </group>
+                    <group string="Notes &amp; Acknowledgement">
+                        <field name="notes" nolabel="1" placeholder="Details regarding handover condition, accessories provided, return remarks..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_employee_asset_assignment_search" model="ir.ui.view">
+        <field name="name">employee.asset.assignment.search</field>
+        <field name="model">employee.asset.assignment</field>
+        <field name="arch" type="xml">
+            <search string="Search Assignments">
+                <field name="name"/>
+                <field name="asset_id"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <separator/>
+                <filter name="filter_active" string="Active Assignments" domain="[('state', '=', 'assigned')]"/>
+                <filter name="filter_overdue" string="Return Overdue" domain="[('is_overdue', '=', True)]"/>
+                <filter name="filter_returned" string="Returned" domain="[('state', '=', 'returned')]"/>
+                <filter name="filter_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <group>
+                    <filter name="group_by_asset" string="Asset" context="{'group_by': 'asset_id'}"/>
+                    <filter name="group_by_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_by_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_employee_asset_assignment" model="ir.actions.act_window">
+        <field name="name">Assignment History</field>
+        <field name="res_model">employee.asset.assignment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_employee_asset_assignment_search"/>
+        <field name="context">{'search_default_group_by_employee': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Record an asset assignment
+            </p>
+            <p>
+                Keep a reliable audit trail of which employee held which asset, handover dates, and return condition.
+            </p>
+        </field>
+    </record>
+</odoo>
